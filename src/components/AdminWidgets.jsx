@@ -1,6 +1,6 @@
 import React from 'react';
-import { CalendarDays, Clock3, Edit3, Trash2, Check, Building2, Users } from 'lucide-react';
-import { formatDate, formatTime, parseDate, dateString, today } from '../lib/booking.js';
+import { CalendarDays, Clock3, Building2, Users, ChevronDown } from 'lucide-react';
+import { formatDate, formatTime, parseDate, dateString, today, statuses } from '../lib/booking.js';
 
 export function Status({ value }) {
   return <span className={'status '+value}><span className="status-dot"/>{value}</span>;
@@ -11,22 +11,63 @@ export function Empty({ title = 'No bookings', text = 'Nothing to show yet.' }) 
 export function StatCard({ icon: Icon, label, value, detail, tone = 'green' }) {
   return <div className="stat-card"><div className="stat-top"><span className={'stat-icon '+tone}><Icon size={21}/></span><span className="stat-caption">LIVE <span className="live-dot"/></span></div><span className="stat-value">{value}</span><strong>{label}</strong><small>{detail}</small></div>;
 }
-export function BookingTable({ bookings, onEdit, onCancel, onConfirm }) {
-  if (!bookings.length) return <Empty title="No bookings found" text="Reservations will appear here once they're submitted."/>;
-  return <div className="table-scroll"><table><thead><tr><th>Date & time</th><th>Booked by</th><th>Resource</th><th>Purpose</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-    {bookings.map(b => <tr key={b.id}>
-      <td><strong>{formatDate(b.booked_for)}</strong><small><Clock3 size={13}/>{formatTime(b.start_time)} – {formatTime(b.end_time)}</small></td>
-      <td><div className="person-cell"><span className="person-avatar">{b.booked_by?.[0]?.toUpperCase() || 'G'}</span><div><strong>{b.booked_by}</strong><small>{b.department || '—'}</small></div></div></td>
-      <td><span className="resource-chip"><Building2 size={14}/>{b.resource}</span></td>
-      <td><span className="purpose" title={b.purpose || ''}>{b.purpose || '—'}</span></td>
-      <td><Status value={b.status}/></td>
-      <td><div className="row-actions">
-        {b.status==='pending'&&<button aria-label="Confirm booking" title="Confirm" onClick={() => onConfirm(b)}><Check size={16}/></button>}
-        <button aria-label="Edit booking" title="Edit" onClick={() => onEdit(b)}><Edit3 size={16}/></button>
-        {b.status !== 'cancelled' && <button aria-label="Cancel booking" title="Cancel" onClick={() => onCancel(b)}><Trash2 size={16}/></button>}
-      </div></td>
-    </tr>)}
-  </tbody></table></div>;
+/**
+ * Admin status is edited directly in the table.
+ * Changing the selection calls a status-only PATCH; the row stays intact.
+ * Clicking the booker's name opens the full detail editor when needed.
+ */
+export function BookingTable({ bookings, onEdit, onStatusChange, savingStatusId }) {
+  if (!bookings.length)
+    return <Empty title="No bookings found" text="Try a different filter, or create a new reservation."/>;
+
+  return <div className="table-scroll"><table className="booking-records-table">
+    <thead><tr>
+      <th scope="col">Date &amp; time</th>
+      <th scope="col">Booked by</th>
+      <th scope="col">Resource</th>
+      <th scope="col">Purpose</th>
+      <th scope="col">Status</th>
+    </tr></thead>
+    <tbody>{bookings.map(booking =>
+      <tr key={booking.id}>
+        <td>
+          <strong>{formatDate(booking.booked_for)}</strong>
+          <small><Clock3 size={13}/>{formatTime(booking.start_time)} – {formatTime(booking.end_time)}</small>
+        </td>
+        <td><div className="person-cell">
+          <span className="person-avatar">{booking.booked_by?.[0]?.toUpperCase() || 'G'}</span>
+          <div>
+            <button type="button" className="booking-name-link"
+              title="Edit booking details"
+              aria-label={'Edit booking details for ' + booking.booked_by}
+              onClick={() => onEdit(booking)}>{booking.booked_by}</button>
+            <small>{booking.department || '—'}</small>
+          </div>
+        </div></td>
+        <td><span className="resource-chip"><Building2 size={14}/>{booking.resource}</span></td>
+        <td><span className="purpose" title={booking.purpose || ''}>{booking.purpose || '—'}</span></td>
+        <td>
+          <div className={'booking-status-control ' + booking.status}>
+            <span className="status-dot" aria-hidden="true"/>
+            <select
+              aria-label={'Status for ' + booking.booked_by + ' on ' + booking.booked_for}
+              title="Change status. Booking records are never deleted."
+              value={booking.status}
+              disabled={Boolean(savingStatusId)}
+              onChange={event => onStatusChange(booking, event.target.value)}
+            >
+              {statuses.map(status =>
+                <option key={status} value={status}>{status.charAt(0).toUpperCase() + status.slice(1)}</option>
+              )}
+            </select>
+            <ChevronDown size={14} aria-hidden="true"/>
+          </div>
+          {savingStatusId === booking.id &&
+            <small className="status-saving" role="status">Saving status…</small>}
+        </td>
+      </tr>
+    )}</tbody>
+  </table></div>;
 }
 export function CalendarPanel({bookings, date, onDate, onCreate, onEdit}) {
   const first = parseDate(date);first.setDate(1);
