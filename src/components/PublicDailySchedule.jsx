@@ -73,7 +73,7 @@ export default function PublicDailySchedule({ date, selectedResource, refreshKey
         </button>
       </div>
       <p className="daily-schedule-intro">
-        Check existing reservations before choosing a time. Pending requests may also occupy a slot.
+        Check who booked each space and their department before choosing a time. Pending requests may also occupy a slot.
       </p>
       {state === 'loading' && <p className="daily-schedule-feedback" role="status">Loading the schedule…</p>}
       {state === 'error' && <p className="daily-schedule-feedback warning" role="alert">
@@ -108,7 +108,7 @@ export default function PublicDailySchedule({ date, selectedResource, refreshKey
       )}
       {state === 'ready' && result.capped &&
         <p className="daily-schedule-feedback warning">Showing the first 200 reservations only.</p>}
-      <p className="daily-schedule-privacy"><ShieldCheck size={14}/> Personal booking details are kept private.</p>
+      <p className="daily-schedule-privacy">Names and departments are shown to visitors for scheduling coordination. Booking purposes and notes remain private.</p>
     </section>
   );
 }
