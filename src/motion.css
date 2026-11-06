@@ -70,7 +70,8 @@
 }
 
 .booking-public .hero-cta {
-  animation: gl-rise 600ms var(--motion-easing) 300ms both;
+  /* Backwards fill keeps the entrance delay but releases transform for hover. */
+  animation: gl-rise 600ms var(--motion-easing) 300ms backwards;
 }
 
 .booking-public .hero-foot {
@@ -208,7 +209,8 @@
 }
 
 .workspace .stat-card {
-  animation: gl-rise 500ms var(--motion-easing) both;
+  /* Do not retain the keyframe transform after it finishes. */
+  animation: gl-rise 500ms var(--motion-easing) backwards;
   transition:
     transform var(--motion-normal) var(--motion-easing),
     box-shadow var(--motion-normal) ease,
