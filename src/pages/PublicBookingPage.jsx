@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarDays, Clock3, ArrowRight, CheckCircle2, AlertTriangle, ShieldCheck, Users, Building2, ClipboardList } from 'lucide-react';
 import Brand from '../components/Brand.jsx';
 import { api } from '../lib/api.js';
 import { resources, today } from '../lib/booking.js';
 import { useScrollReveal } from '../hooks/useScrollReveal.js';
+import { useBookingAvailability } from '../hooks/useBookingAvailability.js';
+import AvailabilityMessage from '../components/AvailabilityMessage.jsx';
 
 const empty = () => ({
   booked_for: today(), start_time: '09:00', end_time: '10:00',
@@ -14,20 +16,10 @@ const empty = () => ({
 export default function PublicBookingPage() {
   useScrollReveal();
   const [form, setForm] = useState(empty);
-  const [slots, setSlots] = useState([]);
-  const [availability, setAvailability] = useState('checking');
+  const { state: availability, occupied: slots, reference, retry } =
+    useBookingAvailability(form.booked_for, form.resource);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    setAvailability('checking');
-    api('/api/availability?date=' + encodeURIComponent(form.booked_for) +
-      '&resource=' + encodeURIComponent(form.resource), { signal: controller.signal })
-      .then(data => { if (!controller.signal.aborted) { setSlots(data.occupied || []); setAvailability('ready'); } })
-      .catch(error => { if (!controller.signal.aborted) { setSlots([]); setAvailability('unavailable'); setNotice({type: 'warning', text: error.message}); } });
-    return () => controller.abort();
-  }, [form.booked_for, form.resource]);
 
   const conflict = slots.some(s => form.start_time < s.end_time && form.end_time > s.start_time);
 
@@ -47,6 +39,7 @@ export default function PublicBookingPage() {
       const result = await api('/api/public-bookings', { method: 'POST', body: form });
       setNotice({type:'success', text:result.message || 'Booking request submitted successfully.'});
       setForm(current => ({...empty(), booked_for: current.booked_for, resource: current.resource}));
+      retry(); // Refresh occupancy now that a new request has been recorded.
     } catch (error) {
       setNotice({type:'error', text:error.message + (error.requestId ? ' (Reference: ' + error.requestId.slice(0, 8) + ')' : '')});
     } finally {
@@ -79,9 +72,12 @@ export default function PublicBookingPage() {
               <h3><CalendarDays size={20}/> Reservation details</h3>
               <div className="form-two"><label>Booking date <span>*</span><input type="date" min={today()} required value={form.booked_for} onChange={e => field('booked_for', e.target.value)}/></label><label>Resource / space <span>*</span><select required value={form.resource} onChange={e => field('resource',e.target.value)}>{resources.map(r => <option key={r}>{r}</option>)}</select></label></div>
               <div className="form-two"><label>Start time <span>*</span><input type="time" required value={form.start_time} onChange={e => field('start_time',e.target.value)}/></label><label>End time <span>*</span><input type="time" required value={form.end_time} onChange={e => field('end_time',e.target.value)}/></label></div>
-              <div className={'availability-indicator '+(availability==='checking'?'checking':availability==='unavailable'?'offline':conflict?'taken':'')}>
-                <Clock3 size={17}/>{availability==='checking'?'Checking availability…':availability==='unavailable'?'Scheduling is temporarily unavailable.':conflict?'This time overlaps an existing booking.':'Schedule available. The administrator will confirm your request.'}
-              </div>
+              <AvailabilityMessage
+                state={availability}
+                conflict={conflict}
+                reference={reference}
+                onRetry={retry}
+              />
               <h3><Users size={20}/> Booker information</h3>
               <div className="form-two"><label>Full name <span>*</span><input required maxLength={120} value={form.booked_by} onChange={e=>field('booked_by',e.target.value)} placeholder="Your full name"/></label><label>Department <input maxLength={120} value={form.department} onChange={e=>field('department',e.target.value)} placeholder="Department / team"/></label></div>
               <label>Purpose of booking<textarea rows={3} maxLength={1000} value={form.purpose} onChange={e=>field('purpose',e.target.value)} placeholder="What will you use this space for?"/></label>
