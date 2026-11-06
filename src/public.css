@@ -53,7 +53,41 @@
 .public-request-form h3 {display:flex;align-items:center;gap:11px;font-size:16px;margin-bottom:20px;margin-top:2px;color:#1b553a;}
 .public-request-form h3:not(:first-child) {margin-top:30px;border-top:1px solid #ecf2ed;padding-top:28px;}
 .public-request-form label {display:flex;flex-direction:column;gap:8px;color:#4d6757;font-size:12px;font-weight:800;margin-bottom:17px;}
-.public-request-form label span {color:#dd8062;}
+/* Keep labels (including required asterisks) on one baseline so both
+   columns begin at identical heights. Do not style the entire label orange. */
+.public-request-form label {min-width:0;}
+.public-request-form .form-label-text {
+  display:inline-flex;
+  flex-direction:row;
+  align-items:baseline;
+  gap:4px;
+  width:max-content;
+  max-width:100%;
+  min-height:20px;
+  line-height:20px;
+  font-size:12px;
+  font-weight:800;
+  color:#4d6757;
+}
+.public-request-form .form-label-text > span {
+  display:inline;
+  width:auto;
+  flex:0 0 auto;
+  color:#dd8062;
+}
+.public-request-form .form-two {
+  align-items:start;
+  column-gap:16px;
+}
+.public-request-form .form-two > label {min-width:0;}
+.public-request-form input:not(.honeypot),
+.public-request-form select {
+  min-height:48px;
+  height:48px;
+  box-sizing:border-box;
+}
+.public-request-form textarea {box-sizing:border-box;min-height:96px;}
+
 .public-request-form input:not(.honeypot),.public-request-form select,.public-request-form textarea {background:#fcfefc;width:100%;padding:12px 13px;min-height:46px;border:1px solid #dce8df;border-radius:9px;outline:0;color:#2b4835;font-size:13px;transition:border-color .2s,box-shadow .2s;}
 .public-request-form input:focus,.public-request-form select:focus,.public-request-form textarea:focus {border-color:#74b28d;box-shadow:0 0 0 3px #e4f5e9;}
 .public-request-form textarea {resize:vertical;}
