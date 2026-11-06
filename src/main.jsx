@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage.jsx';
 import AdminWorkspace from './pages/AdminWorkspace.jsx';
 import './styles.css';
 import './public.css';
+import './motion.css';
 
 /** Routes follow the RFP website: public intake, separate staff login, private admin. */
 function AdminLoginRoute({ session, setAuthenticated }) {
