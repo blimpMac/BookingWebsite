@@ -5,8 +5,8 @@ create table if not exists public.greenlight_booking_reservations (
   booked_for date not null,
   start_time time not null,
   end_time time not null,
-  resource text not null,
-  booked_by text not null,
+  resource text not null check (length(btrim(resource)) > 0),
+  booked_by text not null check (length(btrim(booked_by)) > 0),
   department text not null default '',
   purpose text not null default '',
   notes text not null default '',
@@ -15,14 +15,14 @@ create table if not exists public.greenlight_booking_reservations (
   updated_at timestamptz not null default now(),
   constraint greenlight_booking_time_range check (end_time > start_time)
 );
--- Prevent all time-range overlaps, including different start times.
+-- Atomic overlap prevention: same date/resource (case insensitive), overlapping times.
 -- PostgreSQL enforces this atomically even for concurrent requests.
 create extension if not exists btree_gist;
 alter table public.greenlight_booking_reservations
   add constraint greenlight_booking_no_overlap
   exclude using gist (
     booked_for with =,
-    resource with =,
+    (lower(btrim(resource))) with =,
     tsrange(booked_for + start_time, booked_for + end_time, '[)') with &&
   ) where (status <> 'cancelled');
 create index if not exists greenlight_booking_date_idx on public.greenlight_booking_reservations (booked_for desc);
