@@ -1,0 +1,317 @@
+/*
+ * Greenlight Booking motion system
+ *
+ * Only transforms and opacity are animated for layout stability.
+ * Durations are intentionally short; no animation framework is required.
+ * The reduced-motion block below disables all decorative motion.
+ */
+
+:root {
+  --motion-fast: 160ms;
+  --motion-normal: 260ms;
+  --motion-slow: 620ms;
+  --motion-easing: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes gl-rise {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes gl-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes gl-slide-right {
+  from { opacity: 0; transform: translate3d(-12px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes gl-scale-in {
+  from { opacity: 0; transform: translate3d(0, 12px, 0) scale(0.975); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes gl-float {
+  0%, 100% { transform: translateY(0) rotate(2deg); }
+  50% { transform: translateY(-7px) rotate(1deg); }
+}
+
+@keyframes gl-bob {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-4px) rotate(-2deg); }
+}
+
+@keyframes gl-grow-bar {
+  from { transform: scaleY(0.08); }
+  to { transform: scaleY(1); }
+}
+
+@keyframes gl-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Public booking page: calm, staggered first impression. */
+.booking-public .public-header {
+  animation: gl-fade 420ms ease-out both;
+}
+
+.booking-public .hero-tag {
+  animation: gl-rise 500ms var(--motion-easing) 50ms both;
+}
+
+.booking-public .hero-copy h1 {
+  animation: gl-rise 650ms var(--motion-easing) 130ms both;
+}
+
+.booking-public .hero-copy > p {
+  animation: gl-rise 620ms var(--motion-easing) 210ms both;
+}
+
+.booking-public .hero-cta {
+  animation: gl-rise 600ms var(--motion-easing) 300ms both;
+}
+
+.booking-public .hero-foot {
+  animation: gl-rise 600ms var(--motion-easing) 380ms both;
+}
+
+.booking-public .hero-illustration {
+  animation: gl-scale-in 720ms var(--motion-easing) 280ms both;
+}
+
+.booking-public .hero-window {
+  animation: gl-float 6s ease-in-out 1.2s infinite;
+}
+
+.booking-public .hero-success {
+  animation: gl-bob 5s ease-in-out 1.5s infinite;
+}
+
+.booking-public .hero-cta,
+.booking-public .header-inner .staff-link,
+.booking-public .public-submit {
+  transition:
+    background-color var(--motion-normal) ease,
+    box-shadow var(--motion-normal) ease,
+    border-color var(--motion-normal) ease,
+    transform var(--motion-normal) var(--motion-easing);
+}
+
+.booking-public .hero-cta:hover {
+  box-shadow: 0 12px 24px rgba(4, 31, 19, 0.22);
+  transform: translateY(-3px);
+}
+
+.booking-public .hero-cta:hover svg,
+.booking-public .staff-link:hover svg,
+.booking-public .public-submit:not(:disabled):hover svg,
+.login-box .login-submit:not(:disabled):hover svg {
+  transform: translateX(3px);
+}
+
+.booking-public .hero-cta svg,
+.booking-public .staff-link svg,
+.booking-public .public-submit svg,
+.login-box .login-submit svg {
+  transition: transform var(--motion-normal) var(--motion-easing);
+}
+
+.booking-public .request-aside .step {
+  transition: transform var(--motion-normal) var(--motion-easing);
+}
+
+.booking-public .request-aside .step:hover {
+  transform: translateX(4px);
+}
+
+.booking-public .request-aside .step-icon {
+  transition: transform var(--motion-normal) var(--motion-easing),
+              box-shadow var(--motion-normal) ease;
+}
+
+.booking-public .request-aside .step:hover .step-icon {
+  transform: scale(1.06);
+  box-shadow: 0 6px 16px rgba(25, 111, 69, 0.1);
+}
+
+/* Scroll reveal: applied by useScrollReveal only when the browser supports it. */
+.booking-public [data-reveal] {
+  transition:
+    opacity 700ms var(--motion-easing),
+    transform 700ms var(--motion-easing);
+}
+
+.booking-public [data-reveal].motion-pending {
+  opacity: 0;
+  transform: translateY(21px);
+}
+
+.booking-public [data-reveal="second"] {
+  transition-delay: 100ms;
+}
+
+.booking-public [data-reveal="third"] {
+  transition-delay: 180ms;
+}
+
+/* Inline validation, submission feedback, and button interaction. */
+.booking-public .availability-indicator {
+  transition: background-color var(--motion-normal) ease,
+              border-color var(--motion-normal) ease,
+              color var(--motion-normal) ease;
+}
+
+.booking-public .availability-indicator.checking svg {
+  animation: gl-spin 1.6s linear infinite;
+}
+
+.booking-public .alert,
+.login-box .alert,
+.workspace .alert {
+  animation: gl-scale-in 280ms var(--motion-easing) both;
+}
+
+.booking-public .public-submit:not(:disabled):hover,
+.login-box .login-submit:not(:disabled):hover {
+  box-shadow: 0 12px 24px rgba(13, 102, 60, 0.19);
+}
+
+.booking-public .public-submit.is-loading::before,
+.login-box .login-submit.is-loading::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: gl-spin 700ms linear infinite;
+}
+
+/* Login route: dedicated entrance distinct from booking landing. */
+.login-route .login-top {
+  animation: gl-slide-right 480ms var(--motion-easing) both;
+}
+
+.login-route .login-centered > .public-brand {
+  animation: gl-rise 560ms var(--motion-easing) 50ms both;
+}
+
+.login-route .login-box {
+  animation: gl-scale-in 600ms var(--motion-easing) 110ms both;
+}
+
+/* Admin navigation, cards, charts, tables and dialogs. */
+.workspace .page-head {
+  animation: gl-rise 420ms var(--motion-easing) both;
+}
+
+.workspace .stat-card {
+  animation: gl-rise 500ms var(--motion-easing) both;
+  transition:
+    transform var(--motion-normal) var(--motion-easing),
+    box-shadow var(--motion-normal) ease,
+    border-color var(--motion-normal) ease;
+}
+
+.workspace .stat-card:nth-child(2) { animation-delay: 55ms; }
+.workspace .stat-card:nth-child(3) { animation-delay: 110ms; }
+.workspace .stat-card:nth-child(4) { animation-delay: 165ms; }
+
+.workspace .stat-card:hover {
+  transform: translateY(-3px);
+  border-color: #d4e8d9;
+  box-shadow: 0 12px 30px rgba(13, 58, 30, 0.06);
+}
+
+.workspace .panel {
+  animation: gl-rise 450ms var(--motion-easing) 90ms both;
+}
+
+.workspace .dashboard-grid .panel:nth-child(2) {
+  animation-delay: 140ms;
+}
+
+.workspace .bar {
+  transform-origin: center bottom;
+  animation: gl-grow-bar 650ms var(--motion-easing) both;
+}
+
+.workspace .nav-button,
+.workspace .row-actions button,
+.workspace .day-booking,
+.workspace .cal-cell,
+.workspace .btn {
+  transition:
+    background-color var(--motion-fast) ease,
+    border-color var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    box-shadow var(--motion-normal) ease,
+    transform var(--motion-normal) var(--motion-easing);
+}
+
+.workspace .nav-button:hover:not(.selected) {
+  transform: translateX(3px);
+}
+
+.workspace .nav-button.selected .nav-indicator {
+  animation: gl-scale-in 300ms var(--motion-easing) both;
+}
+
+.workspace tbody tr {
+  transition: background-color var(--motion-fast) ease;
+}
+
+.workspace tbody tr:hover {
+  background: #f7fbf8;
+}
+
+.workspace .cal-cell:not(:disabled):hover,
+.workspace .day-booking:hover {
+  transform: translateY(-2px);
+}
+
+.workspace .row-actions button:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+.workspace .booking-count {
+  animation: gl-scale-in 260ms var(--motion-easing) both;
+}
+
+.modal-shade {
+  animation: gl-fade 200ms ease-out both;
+}
+
+.modal-shade .modal {
+  animation: gl-scale-in 340ms var(--motion-easing) both;
+}
+
+.workspace .loading-message::after {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  margin-left: 10px;
+  border-radius: 50%;
+  border: 2px solid #bddbcc;
+  border-top-color: #197952;
+  content: '';
+  vertical-align: -2px;
+  animation: gl-spin 750ms linear infinite;
+}
+
+/* Accessibility: disable decorative motion on request. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .booking-public [data-reveal].motion-pending {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
