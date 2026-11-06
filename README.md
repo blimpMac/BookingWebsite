@@ -1,32 +1,69 @@
 # Greenlight Booking Portal
 
-A responsive, **single-operator** booking manager using React + Vite, Vercel serverless API routes, and an independent Supabase database. Includes a username/password login screen, summary dashboard (day/week/month counts), daily trend chart, upcoming reservations, searchable history, creating and editing bookings, status updates, cancellation and CSV export.
+A booking-request website with an independent administrator workspace, built with React, Vite, Vercel Functions and Supabase.
 
-## Important migration limitation
+## Pages
 
-The original Google Apps Script project is **not accessible** through the connected Google Drive account. Therefore its HTML, logic, data, and original logo have **not been copied**. `public/brand.svg` is a temporary Greenlight-style placeholder (not the original logo). Export the Apps Script source and assets, then migrate exact existing functionality and branding.
+| Route | Audience | Description |
+|---|---|---|
+| [/](/) | Public | Booking landing page, availability, and request form |
+| [/admin/login](/admin/login) | Staff | Separate Greenlight administrator sign-in |
+| [/admin](/admin) | Staff only | Dashboard, calendar, approvals, booking records, reports |
 
-## Run locally
+The interface is modeled after the **public request / separate staff login** structure of the Greenlight RFP website.
+
+## Features
+
+- Public booking intake with date, time, room, name, department, and purpose
+- Private scheduling: public pages see occupied times, never other users' names or notes
+- Requests start as **pending** and can be confirmed by the single administrator
+- Administrator can add, edit, confirm, cancel, filter and export bookings
+- Dashboard summaries: today, current week, current month, and unique bookers
+- Calendar, upcoming bookings, room utilization, booking history
+- Overlapping reservations are rejected by an atomic PostgreSQL exclusion constraint
+- Clear server errors with request IDs for debugging and handover
+- Responsive public, login and administrator layouts
+
+## Code quality
+
+The original single-file UI has been separated into `src/pages`, `src/components`, and `src/lib` modules. The server code is split into thin `api/` routes and reusable `server/` services. Database queries, authentication, validation, HTTP error handling, and reporting utilities have independent responsibilities.
+
+Run:
 
 ```bash
 npm install
-npm run dev
+npm run test
+npm run build
 ```
 
-For live authentication and persistent data, deploy on Vercel; `/api` routes run as serverless functions there. Frontend dev mode uses a proxy only when configured, so use a Vercel dev environment for integration tests.
+Read [ARCHITECTURE](docs/ARCHITECTURE.md) and [OPERATIONS](docs/OPERATIONS.md) before changing the production system.
 
-## Production setup
+## Production connection — NOT YET COMPLETED
 
-1. Create a **new Supabase project** dedicated to Greenlight Booking. Do NOT reuse the existing **RFP Web Project** or its keys. New projects may incur charges and require explicit organization selection.
-2. Execute `supabase/migrations/001_greenlight_booking.sql` in the NEW project's SQL editor. The table is private to the admin API: RLS enabled, no public policies.
-3. In the **greenlight-booking Vercel project**, set **server-only** variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD_SCRYPT`, and `SESSION_SECRET`. Never use any `VITE_` prefix for secret values.
-4. Create `ADMIN_PASSWORD_SCRYPT` as `salt_hex:derived_key_hex` (scrypt N=16384, r=8, p=1, dklen=64); generate `SESSION_SECRET` using cryptographically secure random bytes. Change the temporary admin password after the first login.
-5. Redeploy after setting environment variables. Verify GET /api/session, log in, create a booking, refresh, and verify it persisted. Make sure competing bookings are prevented by the partial unique index.
+**The existing RFP Web Project database is not a booking database and must not be modified.**
 
-## Temporary browser mode
+A **new dedicated Supabase project** must be created for Greenlight Booking. This requires selecting the owning Supabase organization and any applicable cost approval. No historical Apps Script data will be migrated.
 
-If a dedicated Supabase project is not yet connected, the frontend shows an explicit **Browser-only preview** banner and stores new entries in localStorage under the authenticated browser. **Those entries are not synced**, are not business backups, and will not appear on other devices. Export CSV before moving to the live database. This mode exists only to preview the interface without touching any existing databases.
+1. Create a distinct `Greenlight Booking` Supabase project.
+2. Apply `supabase/migrations/001_greenlight_booking.sql` **only in the new project**.
+3. Set these encrypted Vercel environment variables in project `greenlight-booking`:
+   - `ADMIN_USERNAME` (single admin)
+   - `ADMIN_PASSWORD_SCRYPT` (salted scrypt digest, not plaintext)
+   - `SESSION_SECRET` (random server signing key)
+   - `SUPABASE_URL` (new project's URL)
+   - `SUPABASE_SERVICE_ROLE_KEY` (new project's server-only key)
+4. Redeploy the site so serverless functions receive the new settings.
+5. Log in and check `GET /api/health`. It should return `database: connected`.
+6. Test public submission, admin confirmation, cancellation, and conflicting reservations.
 
-## Security
+If Supabase is not configured, the public form and dashboard **must not** claim to save real bookings. No browser-only storage fallback is used.
 
-Credentials are never stored in Git. The password is compared on the server to a scrypt hash in Vercel environment variables. Session cookies are HttpOnly, Secure on Vercel, SameSite=Strict, signed with an HMAC and expire after seven days. All booking API access is authenticated. Writes require same-origin JSON requests. The Supabase service-role key is never included in client bundles. Configure Vercel WAF rate limits for the login endpoint for additional hardening.
+## Branding and original Apps Script
+
+The Greenlight Power logo asset is reused from the owner's RFP project. The Google Apps Script editor project was inaccessible through the provided connection, so specific original Apps Script behavior cannot be independently verified; this implementation recreates the described booking functions and adds the requested usage dashboard.
+
+## Security considerations
+
+The public repository contains no real admin password or Supabase credentials. Authentication happens server-side using a salted scrypt hash. The administrator session is signed and stored in an HttpOnly cookie. Only Vercel Functions can use the Supabase service-role key. RLS is enabled and anonymous database permissions are revoked. Configure rate limiting for `/api/public-bookings` and `/api/session` before high-volume production use.
+
+**Admin password:** The initial password was shared in a conversation. Rotate it during handover before business-critical use.
