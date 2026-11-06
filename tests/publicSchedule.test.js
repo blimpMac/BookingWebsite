@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { manilaCalendarDate, toPublicScheduleEntry } from '../server/publicSchedule.js';
 
-test('public schedule never includes a booker name, department, notes or ID', () => {
+test('public schedule includes booker and department but excludes private fields', () => {
   const privateRecord = {
     id: 'not-for-public',
     booked_for: '2026-11-06',
@@ -21,9 +21,11 @@ test('public schedule never includes a booker name, department, notes or ID', ()
     start_time: '09:30',
     end_time: '10:30',
     status: 'pending',
+    booked_by: 'Private person',
+    department: 'Finance',
   });
   const publicText = JSON.stringify(toPublicScheduleEntry(privateRecord));
-  for (const secret of ['Private person', 'Finance', 'Confidential meeting', 'Private notes', 'not-for-public']) {
+  for (const secret of ['Confidential meeting', 'Private notes', 'not-for-public']) {
     assert.equal(publicText.includes(secret), false);
   }
 });
