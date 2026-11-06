@@ -98,6 +98,10 @@ export default function PublicDailySchedule({ date, selectedResource, refreshKey
                     booking.status === 'completed' ? 'Completed' : 'Reserved'}
                 </span>
               </div>
+              <div className="daily-schedule-booker">
+                <span><Users size={13} aria-hidden="true"/><b>Booked by:</b> {booking.booked_by || 'Not provided'}</span>
+                <span><Building2 size={13} aria-hidden="true"/><b>Department:</b> {booking.department || 'Not specified'}</span>
+              </div>
             </div>
           ))}
         </div>
