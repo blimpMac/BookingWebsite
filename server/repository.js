@@ -89,6 +89,19 @@ export async function editBooking(id, booking) {
   if (!data) throw new AppError('NOT_FOUND', 'Booking not found.', 404);
   return data;
 }
+/**
+ * Status changes never remove or overwrite other booking fields.
+ * PostgreSQL's exclusion constraint rejects restoring a cancelled
+ * booking when its time has been reserved by someone else.
+ */
+export async function updateBookingStatus(id, status) {
+  const { data, error } = await database().from(TABLE)
+    .update({ status }).eq('id', id).select('*').maybeSingle();
+  if (error) throw error;
+  if (!data) throw new AppError('NOT_FOUND', 'Booking not found.', 404);
+  return data;
+}
+
 export async function cancelBooking(id) {
   const { data, error } = await database().from(TABLE).update({ status: 'cancelled' }).eq('id', id).select('*').maybeSingle();
   if (error) throw error;
