@@ -4,6 +4,7 @@ import { CalendarDays, Clock3, ArrowRight, CheckCircle2, AlertTriangle, ShieldCh
 import Brand from '../components/Brand.jsx';
 import { api } from '../lib/api.js';
 import { resources, today } from '../lib/booking.js';
+import { useScrollReveal } from '../hooks/useScrollReveal.js';
 
 const empty = () => ({
   booked_for: today(), start_time: '09:00', end_time: '10:00',
@@ -11,6 +12,7 @@ const empty = () => ({
 });
 
 export default function PublicBookingPage() {
+  useScrollReveal();
   const [form, setForm] = useState(empty);
   const [slots, setSlots] = useState([]);
   const [availability, setAvailability] = useState('checking');
@@ -71,13 +73,13 @@ export default function PublicBookingPage() {
           <div className="hero-illustration" aria-hidden="true"><div className="hero-window"><div className="tiny-dots"><span/><span/><span/></div><div className="fake-calendar"><div className="fake-head"><span>November 2026</span><span>‹ &nbsp; ›</span></div><div className="fake-week">{['M','T','W','T','F','S','S'].map((d,i)=><b key={i}>{d}</b>)}</div><div className="fake-days">{Array.from({length:28},(_,i)=><span key={i} className={[3,10,18,24].includes(i)?'filled':''}>{i+1}</span>)}</div></div><div className="hero-success"><CheckCircle2 size={19}/><div><b>Make plans with ease</b><small>All in one place</small></div></div></div></div>
         </div></section>
         <section className="request-section" id="request"><div className="public-container">
-          <div className="request-header"><span className="eyebrow">BOOK A SPACE</span><h2>Make a reservation</h2><p>Choose your room and schedule, then tell us who's booking it. Requests are reviewed by the booking administrator.</p></div>
+          <div className="request-header" data-reveal="first"><span className="eyebrow">BOOK A SPACE</span><h2>Make a reservation</h2><p>Choose your room and schedule, then tell us who's booking it. Requests are reviewed by the booking administrator.</p></div>
           <div className="request-layout">
-            <form className="public-request-form" onSubmit={submit}>
+            <form className="public-request-form" data-reveal="second" onSubmit={submit}>
               <h3><CalendarDays size={20}/> Reservation details</h3>
               <div className="form-two"><label>Booking date <span>*</span><input type="date" min={today()} required value={form.booked_for} onChange={e => field('booked_for', e.target.value)}/></label><label>Resource / space <span>*</span><select required value={form.resource} onChange={e => field('resource',e.target.value)}>{resources.map(r => <option key={r}>{r}</option>)}</select></label></div>
               <div className="form-two"><label>Start time <span>*</span><input type="time" required value={form.start_time} onChange={e => field('start_time',e.target.value)}/></label><label>End time <span>*</span><input type="time" required value={form.end_time} onChange={e => field('end_time',e.target.value)}/></label></div>
-              <div className={'availability-indicator '+(availability==='unavailable'?'offline':conflict?'taken':'')}>
+              <div className={'availability-indicator '+(availability==='checking'?'checking':availability==='unavailable'?'offline':conflict?'taken':'')}>
                 <Clock3 size={17}/>{availability==='checking'?'Checking availability…':availability==='unavailable'?'Scheduling is temporarily unavailable.':conflict?'This time overlaps an existing booking.':'Schedule available. The administrator will confirm your request.'}
               </div>
               <h3><Users size={20}/> Booker information</h3>
@@ -85,9 +87,9 @@ export default function PublicBookingPage() {
               <label>Purpose of booking<textarea rows={3} maxLength={1000} value={form.purpose} onChange={e=>field('purpose',e.target.value)} placeholder="What will you use this space for?"/></label>
               <input tabIndex={-1} aria-hidden="true" autoComplete="off" className="honeypot" value={form.website} onChange={e=>field('website',e.target.value)}/>
               {notice&&<div role="status" className={'alert '+notice.type}>{notice.type==='success'?<CheckCircle2 size={19}/>:<AlertTriangle size={19}/>}<span>{notice.text}</span></div>}
-              <button className="btn primary public-submit" disabled={busy||availability!=='ready'||conflict}>{busy?'Submitting…':'Submit booking request'}<ArrowRight size={17}/></button>
+              <button className={"btn primary public-submit" + (busy ? " is-loading" : "")} disabled={busy||availability!=='ready'||conflict}>{busy?'Submitting…':'Submit booking request'}<ArrowRight size={17}/></button>
             </form>
-            <aside className="request-aside" id="how-it-works"><div className="aside-heading"><span className="eyebrow">HOW IT WORKS</span><h3>Booking made simple.</h3></div>
+            <aside className="request-aside" data-reveal="third" id="how-it-works"><div className="aside-heading"><span className="eyebrow">HOW IT WORKS</span><h3>Booking made simple.</h3></div>
               <div className="step"><span className="step-icon"><CalendarDays size={20}/></span><div><b>01. Select your schedule</b><p>Pick a space, date, and time that suits your needs.</p></div></div>
               <div className="step"><span className="step-icon"><ClipboardList size={20}/></span><div><b>02. Share your details</b><p>Tell us who is booking and what the reservation is for.</p></div></div>
               <div className="step"><span className="step-icon"><CheckCircle2 size={20}/></span><div><b>03. Await confirmation</b><p>The administrator reviews the request and manages the booking.</p></div></div>
