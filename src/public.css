@@ -130,3 +130,55 @@
   .login-box {padding:24px;}
   .admin-public-link {display:none;}
 }
+
+
+/* Booking service availability: a single non-overlapping alert with retry. */
+.booking-public .availability-indicator {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.booking-public .availability-copy {
+  flex: 1 1 220px;
+  min-width: 0;
+  line-height: 1.55;
+}
+
+.booking-public .availability-reference {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: .75;
+}
+
+.booking-public .availability-retry {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 12px;
+  border: 1px solid #e7c9aa;
+  border-radius: 8px;
+  background: #fffaf6;
+  color: #8d572c;
+  font-size: 12px;
+  font-weight: 800;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.booking-public .availability-retry:hover {
+  border-color: #cb9c72;
+  background: #fff1e3;
+}
+
+.booking-public .availability-retry:focus-visible {
+  outline: 3px solid #e9b685;
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .booking-public .availability-retry { width: 100%; }
+}
