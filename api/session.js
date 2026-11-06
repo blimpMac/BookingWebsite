@@ -1,7 +1,27 @@
-import {isAuthorized,validCredentials,loginCookie,logoutCookie,safeMutation,respond} from './_auth.js';
-export default async function handler(req,res){
-if(req.method==='GET')return respond(res,200,{authenticated:isAuthorized(req),configured:Boolean(process.env.ADMIN_PASSWORD_SCRYPT&&process.env.SESSION_SECRET)});
-if(req.method==='POST'){if(!safeMutation(req))return respond(res,403,{error:'Invalid request origin.'});const {username='',password=''}=req.body||{};if(!validCredentials(username,password))return respond(res,401,{error:'Invalid username or password.'});res.setHeader('Set-Cookie',loginCookie());return respond(res,200,{authenticated:true})}
-if(req.method==='DELETE'){if(!safeMutation(req))return respond(res,403,{error:'Invalid request origin.'});res.setHeader('Set-Cookie',logoutCookie());return respond(res,200,{authenticated:false})}
-res.setHeader('Allow','GET, POST, DELETE');return respond(res,405,{error:'Method not allowed.'});
+import { authorized, configured, verifyAdmin, makeCookie, clearCookie } from '../server/adminAuth.js';
+import { AppError } from '../server/errors.js';
+import { context, respond, fail, requireJsonSameOrigin } from '../server/http.js';
+
+export default async function handler(req, res) {
+  const ctx = context(req, res);
+  try {
+    if (req.method === 'GET') {
+      return respond(ctx, 200, { authenticated: authorized(req), configured: configured() });
+    }
+    if (!['POST', 'DELETE'].includes(req.method)) {
+      res.setHeader('Allow', 'GET, POST, DELETE');
+      return respond(ctx, 405, { error: 'Method not allowed.' });
+    }
+    if (!requireJsonSameOrigin(req)) throw new AppError('INVALID_ORIGIN', 'Request must come from this website.', 403);
+    if (req.method === 'DELETE') {
+      res.setHeader('Set-Cookie', clearCookie());
+      return respond(ctx, 200, { authenticated: false });
+    }
+    if (!verifyAdmin(req.body?.username, req.body?.password))
+      throw new AppError('INVALID_CREDENTIALS', 'Invalid username or password.', 401);
+    res.setHeader('Set-Cookie', makeCookie());
+    return respond(ctx, 200, { authenticated: true });
+  } catch (error) {
+    return fail(ctx, error, 'session.' + req.method);
+  }
 }
