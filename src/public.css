@@ -391,3 +391,44 @@
   .booking-public .daily-schedule-refresh { padding: 8px; }
   .booking-public .daily-schedule-refresh > span { display: none; }
 }
+
+
+/* Public schedule ownership: legible, consistent in the booking cards. */
+.booking-public .daily-schedule-booker {
+  display: grid;
+  gap: 5px;
+  padding-top: 9px;
+  border-top: 1px solid #eaf1ec;
+}
+.booking-public .daily-schedule-booker > span {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #486454;
+  overflow-wrap: anywhere;
+}
+.booking-public .daily-schedule-booker svg {
+  flex: 0 0 auto;
+  align-self: center;
+  color: #56946f;
+}
+.booking-public .daily-schedule-booker b {
+  color: #2a5940;
+  font-weight: 800;
+}
+.booking-public .booking-sharing-notice {
+  margin: 0 0 17px;
+  padding: 11px 13px;
+  background: #f3f9f5;
+  border: 1px solid #e1ebe4;
+  border-radius: 10px;
+  color: #567362;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.booking-public .daily-schedule-privacy {
+  line-height: 1.6;
+}
