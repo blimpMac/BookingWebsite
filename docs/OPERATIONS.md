@@ -10,6 +10,7 @@
    - `SESSION_SECRET` — random signing secret
    - `SUPABASE_URL` — the new project's API URL
    - `SUPABASE_SERVICE_ROLE_KEY` — the new project's **secret** service-role key
+   - `BOOKING_SUPABASE_PROJECT_REF` — the new project's ref, for example the subdomain in `https://<ref>.supabase.co`. A mismatched URL is rejected before connecting.
 4. Redeploy the production branch so Vercel Functions receive the new variables.
 5. Verify the public page, sign-in, `/api/health`, creating pending bookings, admin confirmation, cancellation, and duplicate time protection.
 
@@ -24,7 +25,9 @@
 | Code | Meaning | Fix |
 |---|---|---|
 | `INVALID_CREDENTIALS` | Username/password mismatch | Check Vercel admin vars and redeploy |
-| `DATABASE_NOT_CONFIGURED` | Supabase URL/key missing | Add dedicated project credentials to Vercel |
+| `DATABASE_NOT_CONFIGURED` | Supabase URL/key/project reference missing | Add the three dedicated project environment variables to Vercel |
+| `DATABASE_PROJECT_MISMATCH` | Booking project ref and API URL disagree | Confirm the exact new project's URL and ref; never reuse RFP values |
+| `DATABASE_CONFIG_INVALID` | Booking API URL is malformed | Correct the Supabase URL |
 | `SCHEMA_NOT_READY` | Booking table doesn't exist | Run the migration in the new Supabase project |
 | `DATABASE_ACCESS` | Database access problem | Verify service-role key and project isolation |
 | `BOOKING_OVERLAP` | Resource/time conflict | Choose another date/time or cancel conflicting booking |
