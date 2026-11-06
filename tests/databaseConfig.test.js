@@ -40,3 +40,10 @@ test('invalid URL fails closed rather than selecting another project', () => {
     error => error.code === 'DATABASE_CONFIG_INVALID',
   );
 });
+
+
+test('modern Supabase secret keys are preferred over legacy service-role keys', () => {
+  const modern = { ...dedicated, SUPABASE_SECRET_KEY: 'sb_secret_testing_only' };
+  const result = validateDatabaseConfig(modern);
+  assert.equal(result.key, modern.SUPABASE_SECRET_KEY);
+});
