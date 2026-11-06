@@ -6,7 +6,8 @@ import { manilaCalendarDate } from '../server/publicSchedule.js';
 
 /**
  * Public daily schedule for the reservation form.
- * No names, departments, notes, contact details or IDs are returned.
+ * Exposes reservation name and department for coordination, as disclosed
+ * on the booking form. Notes, purposes, contacts and IDs stay private.
  * The date defaults to today in the Philippines.
  */
 export default async function handler(req, res) {
