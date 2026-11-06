@@ -12,9 +12,14 @@ let db;
 export function validateDatabaseConfig(config) {
   const {
     SUPABASE_URL: url,
-    SUPABASE_SERVICE_ROLE_KEY: key,
+    SUPABASE_SECRET_KEY,
+    SUPABASE_SERVICE_ROLE_KEY,
     BOOKING_SUPABASE_PROJECT_REF: projectRef,
   } = config;
+
+  // Prefer modern, independently rotatable Supabase secret keys. Legacy service_role
+  // remains supported during migration; neither key is ever sent to the browser.
+  const key = SUPABASE_SECRET_KEY || SUPABASE_SERVICE_ROLE_KEY;
 
   if (!url || !key || !projectRef) {
     throw new AppError(
