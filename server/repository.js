@@ -4,13 +4,51 @@ import { AppError } from './errors.js';
 export const TABLE = 'greenlight_booking_reservations';
 let db;
 
-/** Only the Vercel server can access the service role key. */
+/**
+ * Prevents the booking service from accidentally connecting to an existing
+ * application database. The project reference MUST be from the new, dedicated
+ * Greenlight Booking project and is configured only in Vercel.
+ */
+export function validateDatabaseConfig(config) {
+  const {
+    SUPABASE_URL: url,
+    SUPABASE_SERVICE_ROLE_KEY: key,
+    BOOKING_SUPABASE_PROJECT_REF: projectRef,
+  } = config;
+
+  if (!url || !key || !projectRef) {
+    throw new AppError(
+      'DATABASE_NOT_CONFIGURED',
+      'Greenlight Booking is not connected to its dedicated database.',
+      503,
+    );
+  }
+
+  try {
+    const hostname = new URL(url).hostname.toLowerCase();
+    if (hostname !== projectRef.toLowerCase() + '.supabase.co') {
+      throw new AppError(
+        'DATABASE_PROJECT_MISMATCH',
+        'The booking database project does not match its approved configuration.',
+        503,
+      );
+    }
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw new AppError('DATABASE_CONFIG_INVALID', 'The booking database URL is invalid.', 503);
+  }
+
+  return { url, key };
+}
+
+/** Only Vercel server-side functions can access these credentials. */
 export function database() {
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY)
-    throw new AppError('DATABASE_NOT_CONFIGURED', 'Greenlight Booking needs its dedicated Supabase connection.', 503);
-  if (!db) db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false }
-  });
+  const { url, key } = validateDatabaseConfig(process.env);
+  if (!db) {
+    db = createClient(url, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+  }
   return db;
 }
 export async function listBookings() {
