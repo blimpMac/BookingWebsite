@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       throw new AppError('BAD_QUERY', 'Choose a valid schedule date.');
     }
     const schedule = await listPublicSchedule(date);
-    return respond(ctx, 200, { date, ...schedule });
+    return respond(ctx, 200, { date, today: manilaCalendarDate(), ...schedule });
   } catch (error) {
     return fail(ctx, error, 'public-schedule.GET');
   }
