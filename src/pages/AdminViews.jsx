@@ -9,7 +9,7 @@ function PageHeading({eyebrow,title,description,children}) {
 function Action({children,onClick}) {
   return <button className="btn primary" onClick={onClick}><Plus size={18}/>{children}</button>;
 }
-export function Overview({stats, bookings, onNew, onEdit, onCancel, onConfirm, onAll}) {
+export function Overview({stats, bookings, onNew, onEdit, onStatusChange, savingStatusId, onAll}) {
   const upcoming=stats.active.filter(b=>b.booked_for>=today()).sort((a,b)=>(a.booked_for+a.start_time).localeCompare(b.booked_for+b.start_time));
   const calendar=Array.from({length:7},(_,i)=>{const d=parseDate(today());d.setDate(d.getDate()-6+i);return dateString(d)});
   const heights=calendar.map(d=>stats.active.filter(b=>b.booked_for===d).length);
@@ -26,19 +26,19 @@ export function Overview({stats, bookings, onNew, onEdit, onCancel, onConfirm, o
       <section className="panel chart-panel"><div className="panel-head"><div><h2>Booking activity</h2><p>Past 7 days, including today</p></div></div><div className="chart-wrap"><div className="chart-axis"><span>{max}</span><span>{Math.floor(max/2)}</span><span>0</span></div><div className="chart-bars">{calendar.map((day,i)=><div className="bar-track" key={day} title={day+' · '+heights[i]+' bookings'}><div className="bar-position"><div className={'bar '+(day===today()?'current':'')} style={{height:heights[i]?Math.max(8,heights[i]*100/max)+'%':'3px'}}/></div><small>{formatDate(day,{weekday:'short'})}</small></div>)}</div></div><div className="chart-footer"><span className="chart-legend"/> Active bookings per day</div></section>
       <section className="panel upcoming-panel"><div className="panel-head"><div><h2>Upcoming bookings</h2><p>Next scheduled reservations</p></div><button className="text-btn" onClick={onAll}>View all <ArrowRight size={16}/></button></div><div className="upcoming-list">{upcoming.length?upcoming.slice(0,5).map(b=><div className="upcoming-item" key={b.id}><div className="date-square"><b>{parseDate(b.booked_for).getDate()}</b><span>{formatDate(b.booked_for,{month:'short'})}</span></div><div className="upcoming-details"><strong>{b.booked_by}</strong><small>{b.resource}</small><span><Clock3 size={13}/>{formatTime(b.start_time)} – {formatTime(b.end_time)}</span></div><Status value={b.status}/></div>):<Empty title="No upcoming bookings" text="New reservations will appear here."/>}</div></section>
     </div>
-    <section className="panel table-panel"><div className="panel-head"><div><h2>Today's bookings</h2><p>{stats.day.length} active reservations today</p></div><button className="text-btn" onClick={onAll}>All bookings <ArrowRight size={16}/></button></div><BookingTable bookings={stats.day} onEdit={onEdit} onCancel={onCancel} onConfirm={onConfirm}/></section>
+    <section className="panel table-panel"><div className="panel-head"><div><h2>Today's bookings</h2><p>{stats.day.length} active reservations today</p></div><button className="text-btn" onClick={onAll}>All bookings <ArrowRight size={16}/></button></div><BookingTable bookings={stats.day} onEdit={onEdit} onStatusChange={onStatusChange} savingStatusId={savingStatusId}/></section>
   </>;
 }
-export function Reservations({bookings,onNew,onEdit,onCancel,onConfirm,onExport,onReload,loading}) {
+export function Reservations({bookings,onNew,onEdit,onStatusChange,savingStatusId,onExport,onReload,loading}) {
   const [term,setTerm]=useState('');
-  const [status,setStatus]=useState('all');
-  const filtered=bookings.filter(b=>(status==='all'||b.status===status)&&
+  const [status,setStatus]=useState('active');
+  const filtered=bookings.filter(b=>(status==='all'||(status==='active'&&b.status!=='cancelled')||b.status===status)&&
     [b.booked_by,b.department,b.resource,b.purpose,b.booked_for].join(' ').toLowerCase().includes(term.toLowerCase()));
   return <>
-    <PageHeading eyebrow="RESERVATIONS" title="All bookings" description="Review, confirm and manage all booking requests.">
+    <PageHeading eyebrow="RESERVATIONS" title="All bookings" description="Manage status from the dropdown. Cancelled records stay saved and can be viewed with the filter.">
       <div className="head-actions"><button className="btn subtle" onClick={()=>onExport(filtered)}><Download size={17}/>Export CSV</button><Action onClick={onNew}>New booking</Action></div>
     </PageHeading>
-    <section className="panel table-panel"><div className="filter-bar"><div className="search-box"><Search size={17}/><input aria-label="Search bookings" placeholder="Search names, dates or resources..." value={term} onChange={e=>setTerm(e.target.value)}/></div><div className="select-box"><Filter size={16}/><select aria-label="Filter status" value={status} onChange={e=>setStatus(e.target.value)}>{['all','pending','confirmed','completed','cancelled'].map(s=><option key={s} value={s}>{s[0].toUpperCase()+s.slice(1)}</option>)}</select></div><button className="btn subtle small" onClick={onReload} disabled={loading}><RefreshCw size={16}/>Refresh</button></div><BookingTable bookings={filtered} onEdit={onEdit} onCancel={onCancel} onConfirm={onConfirm}/></section>
+    <section className="panel table-panel"><div className="filter-bar"><div className="search-box"><Search size={17}/><input aria-label="Search bookings" placeholder="Search names, dates or resources..." value={term} onChange={e=>setTerm(e.target.value)}/></div><div className="select-box"><Filter size={16}/><select aria-label="Filter status" value={status} onChange={e=>setStatus(e.target.value)}>{['active','all','pending','confirmed','completed','cancelled'].map(s=><option key={s} value={s}>{s[0].toUpperCase()+s.slice(1)}</option>)}</select></div><button className="btn subtle small" onClick={onReload} disabled={loading}><RefreshCw size={16}/>Refresh</button></div><BookingTable bookings={filtered} onEdit={onEdit} onStatusChange={onStatusChange} savingStatusId={savingStatusId}/></section>
   </>;
 }
 export function Insights({stats,bookings,onExport}) {
