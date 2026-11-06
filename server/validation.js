@@ -36,6 +36,13 @@ export function bookingInput(body, { publicSubmission = false } = {}) {
     throw new AppError('DATE_IN_PAST', 'Please select today or a later date.');
   return booking;
 }
+/** A status-only admin update must never rewrite reservation fields. */
+export function bookingStatus(value) {
+  if (typeof value !== 'string' || !BOOKING_STATUSES.includes(value))
+    throw new AppError('INVALID_STATUS', 'Choose a valid booking status.');
+  return value;
+}
+
 export function bookingId(id) {
   if (typeof id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))
     throw new AppError('INVALID_ID', 'Invalid booking identifier.');
