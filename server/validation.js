@@ -30,6 +30,8 @@ export function bookingInput(body, { publicSubmission = false } = {}) {
     throw new AppError('INVALID_TIME', 'Choose a valid time range (end after start).');
   if (!booking.resource || !booking.booked_by)
     throw new AppError('MISSING_FIELDS', 'Name and resource are required.');
+  if (publicSubmission && !booking.department)
+    throw new AppError('MISSING_DEPARTMENT', 'Select your department before submitting.');
   if (!BOOKING_STATUSES.includes(booking.status))
     throw new AppError('INVALID_STATUS', 'Invalid booking status.');
   if (publicSubmission && booking.booked_for < new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }))
