@@ -216,3 +216,178 @@
 @media (max-width: 480px) {
   .booking-public .availability-retry { width: 100%; }
 }
+
+
+/* Public date schedule: right where users choose their reservation time. */
+.booking-public .public-daily-schedule {
+  display: grid;
+  gap: 11px;
+  min-width: 0;
+  margin: 1px 0 16px;
+  padding: 17px 18px;
+  border: 1px solid #dceae0;
+  border-radius: 12px;
+  background: #f8fcf9;
+}
+.booking-public .daily-schedule-header {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+}
+.booking-public .daily-schedule-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+.booking-public .daily-schedule-symbol {
+  display: flex;
+  flex: 0 0 37px;
+  width: 37px;
+  height: 37px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  color: #1b7a4d;
+  background: #e1f2e7;
+}
+.booking-public .daily-schedule-heading > div { min-width: 0; }
+.booking-public .daily-schedule-heading h4 {
+  margin: 0;
+  font: 800 14px/1.45 Manrope, sans-serif;
+  color: #1b5438;
+}
+.booking-public .daily-schedule-heading p {
+  margin: 3px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #718c79;
+}
+.booking-public .daily-schedule-refresh {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  min-height: 35px;
+  padding: 7px 10px;
+  border: 1px solid #d7e9dc;
+  border-radius: 8px;
+  color: #24764c;
+  font-size: 11px;
+  font-weight: 800;
+  background: #fff;
+  transition: background .16s ease, border-color .16s ease;
+}
+.booking-public .daily-schedule-refresh:hover {
+  background: #eaf7ed;
+  border-color: #b5d8c2;
+}
+.booking-public .daily-schedule-refresh:focus-visible {
+  outline: 2px solid #2f9964;
+  outline-offset: 2px;
+}
+.booking-public .daily-schedule-intro {
+  margin: 0;
+  color: #647c6b;
+  font-size: 11px;
+  line-height: 1.55;
+}
+.booking-public .daily-schedule-list {
+  display: grid;
+  gap: 7px;
+  max-height: 246px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding-right: 2px;
+}
+.booking-public .daily-schedule-item {
+  display: grid;
+  gap: 7px;
+  padding: 11px 12px;
+  border-radius: 9px;
+  border: 1px solid #e1eae4;
+  background: #fff;
+  min-width: 0;
+}
+.booking-public .daily-schedule-item.matching {
+  border-color: #a8d3b9;
+  box-shadow: inset 3px 0 #2b9961;
+}
+.booking-public .daily-schedule-time {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 800;
+  color: #28593d;
+}
+.booking-public .daily-schedule-time svg { flex-shrink: 0; }
+.booking-public .daily-schedule-item-bottom {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+}
+.booking-public .daily-schedule-item-bottom strong {
+  font-size: 11px;
+  color: #567564;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.booking-public .daily-schedule-status {
+  display: inline-flex;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: #edf7f0;
+  color: #227849;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+.booking-public .daily-schedule-status.pending {
+  background: #fff5df;
+  color: #94651e;
+}
+.booking-public .daily-schedule-status.completed {
+  background: #ecf0fb;
+  color: #5a6ba9;
+}
+.booking-public .daily-schedule-feedback {
+  margin: 0;
+  padding: 13px 12px;
+  border-radius: 9px;
+  color: #67816e;
+  background: #fff;
+  border: 1px dashed #d9e8dd;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.booking-public .daily-schedule-feedback.warning {
+  color: #a16b3d;
+  border-color: #efddc3;
+  background: #fff7ee;
+}
+.booking-public .daily-schedule-privacy {
+  margin: 0;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: #789283;
+  font-size: 10px;
+  line-height: 1.45;
+}
+.booking-public .daily-schedule-privacy svg { flex-shrink: 0; }
+@media (max-width: 520px) {
+  .booking-public .public-daily-schedule { padding: 15px 12px; }
+  .booking-public .daily-schedule-header { align-items: flex-start; }
+  .booking-public .daily-schedule-heading { gap: 8px; }
+  .booking-public .daily-schedule-heading h4 { font-size: 13px; }
+  .booking-public .daily-schedule-refresh { padding: 8px; }
+  .booking-public .daily-schedule-refresh > span { display: none; }
+}
