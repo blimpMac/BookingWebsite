@@ -80,7 +80,7 @@ export default function PublicDailySchedule({ date, selectedResource, refreshKey
         The schedule is temporarily unavailable. Please try refreshing.
       </p>}
       {state === 'ready' && result.bookings.length === 0 &&
-        <p className="daily-schedule-feedback empty" role="status">No bookings recorded for this date.</p>}
+        <p className="daily-schedule-feedback empty" role="status">No active bookings for this date.</p>}
       {state === 'ready' && result.bookings.length > 0 && (
         <div className="daily-schedule-list" role="list">
           {result.bookings.map((booking, index) => (
