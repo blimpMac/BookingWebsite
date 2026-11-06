@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarDays, Clock3, RefreshCw, ShieldCheck } from 'lucide-react';
+import { CalendarDays, Clock3, RefreshCw, Users, Building2 } from 'lucide-react';
 import { api } from '../lib/api.js';
 import { formatDate, formatTime } from '../lib/booking.js';
 
 /**
  * Read-only schedule shown directly in the public booking form.
- * Only room/resource, time, and status are displayed—no booker details.
+ * Shows room, time, status, booker and department.
  */
 export default function PublicDailySchedule({ date, selectedResource, refreshKey = 0 }) {
   const [retryCount, setRetryCount] = useState(0);
