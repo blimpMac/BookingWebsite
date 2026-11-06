@@ -5,7 +5,7 @@ import { toPublicError } from '../server/errors.js';
 
 const valid = {
   booked_for: '2099-11-20', start_time: '09:00', end_time: '10:00',
-  resource: 'Conference Room', booked_by: 'Sample User', status: 'confirmed'
+  resource: 'Conference Room', booked_by: 'Sample User', department: 'Engineering', status: 'confirmed'
 };
 
 test('date parsing rejects impossible dates and accepts leap dates', () => {
@@ -41,4 +41,14 @@ test('maps database overlap to readable 409 response code', () => {
   const mapped = toPublicError({ code:'23P01' });
   assert.equal(mapped.status, 409);
   assert.equal(mapped.code, 'BOOKING_OVERLAP');
+});
+
+test('public booking requires a department so the schedule can display it', () => {
+  assert.throws(
+    () => bookingInput({ ...valid, department: '' }, { publicSubmission: true }),
+    error => error.code === 'MISSING_DEPARTMENT'
+  );
+  assert.equal(bookingInput(valid, { publicSubmission: true }).department, 'Engineering');
+  // Admin edits to old records remain possible even without department.
+  assert.equal(bookingInput({ ...valid, department: '' }).department, '');
 });
