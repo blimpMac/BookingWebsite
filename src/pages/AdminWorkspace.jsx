@@ -15,6 +15,7 @@ export default function AdminWorkspace({ onSignOut }) {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [busyStatusId, setBusyStatusId] = useState(null);
   const [notice, setNotice] = useState(null);
   const [databaseError, setDatabaseError] = useState(null);
   const [form, setForm] = useState(null);
@@ -89,28 +90,29 @@ export default function AdminWorkspace({ onSignOut }) {
     finally { setBusy(false); }
   }
 
-  async function confirm(booking) {
-    if (busy) return;
-    setBusy(true);
+  /**
+   * Only the booking's status is patched; all names, dates, purposes and
+   * history remain in the database. A cancelled entry can be restored
+   * from the Cancelled or All status filter.
+   */
+  async function changeStatus(booking, nextStatus) {
+    if (nextStatus === booking.status || busyStatusId || busy) return;
+    if (nextStatus === 'cancelled' &&
+        !window.confirm('Mark this booking as cancelled? The record will remain saved and can be restored.'))
+      return;
+    setBusyStatusId(booking.id);
+    setNotice(null);
     try {
       const data = await api('/api/bookings', {
-        method: 'PATCH', body: { ...booking, status: 'confirmed' }
+        method: 'PATCH',
+        body: { id: booking.id, status: nextStatus }
       });
-      setBookings(current => current.map(b => b.id === booking.id ? data.booking : b));
-      success('Booking confirmed.');
+      setBookings(current => current.map(row =>
+        row.id === booking.id ? data.booking : row
+      ));
+      success('Status updated to ' + nextStatus + '. Booking details were kept.');
     } catch (error) { failure(error); }
-    finally { setBusy(false); }
-  }
-
-  async function cancel(booking) {
-    if (!window.confirm('Cancel reservation for ' + booking.booked_by + '?')) return;
-    setBusy(true);
-    try {
-      const result = await api('/api/bookings', { method: 'DELETE', body: { id: booking.id } });
-      setBookings(current => current.map(b => b.id === booking.id ? result.booking : b));
-      success('Booking cancelled.');
-    } catch (error) { failure(error); }
-    finally { setBusy(false); }
+    finally { setBusyStatusId(null); }
   }
 
   function exportCsv(rows) {
@@ -143,7 +145,6 @@ export default function AdminWorkspace({ onSignOut }) {
       <div className="nav-label">WORKSPACE</div>
       <nav className="sidebar-nav">{nav.map(({key,label,Icon})=><button key={key} className={'nav-button '+(view===key?'selected':'')} onClick={()=>navigate(key)}><Icon size={19}/>{label}{view===key&&<span className="nav-indicator"/>}</button>)}</nav>
       <div className="sidebar-bottom">
-        <div className="info-card"><div className="info-icon"><CalendarDays size={19}/></div><strong>Keep the schedule clear.</strong><p>Review requests and manage every reservation in one place.</p><button onClick={()=>openNew()}>New booking <ArrowRight size={15}/></button></div>
         <div className="admin-row"><div className="avatar">G</div><div><strong>Greenlight</strong><span>Administrator</span></div><button title="Sign out" onClick={signOut}><LogOut size={18}/></button></div>
       </div>
     </aside>
@@ -157,8 +158,8 @@ export default function AdminWorkspace({ onSignOut }) {
         {databaseError&&<div role="alert" className="alert error"><AlertTriangle size={18}/><span><b>Booking database unavailable:</b> {databaseError.message}{databaseError.requestId?' (Ref: '+databaseError.requestId.slice(0,8)+')':''}. The app will not save bookings locally.</span><button className="btn subtle small" onClick={load}>Retry</button></div>}
         {notice&&<div role="status" className={'alert '+notice.type}><span>{notice.type==='success'?<CheckCircle2 size={18}/>:<AlertTriangle size={18}/>}</span>{notice.text}<button onClick={()=>setNotice(null)} aria-label="Dismiss message"><X size={15}/></button></div>}
         {loading&&<p className="loading-message">Loading bookings…</p>}
-        {view==='dashboard'&&<Overview stats={stats} bookings={bookings} onNew={openNew} onEdit={openEdit} onCancel={cancel} onConfirm={confirm} onAll={()=>navigate('bookings')}/>}
-        {view==='bookings'&&<Reservations bookings={bookings} onNew={openNew} onEdit={openEdit} onCancel={cancel} onConfirm={confirm} onExport={exportCsv} onReload={load} loading={loading}/>}
+        {view==='dashboard'&&<Overview stats={stats} bookings={bookings} onNew={openNew} onEdit={openEdit} onStatusChange={changeStatus} savingStatusId={busyStatusId} onAll={()=>navigate('bookings')}/>}
+        {view==='bookings'&&<Reservations bookings={bookings} onNew={openNew} onEdit={openEdit} onStatusChange={changeStatus} savingStatusId={busyStatusId} onExport={exportCsv} onReload={load} loading={loading}/>}
         {view==='calendar'&&<><div className="page-head"><div><div className="eyebrow">SCHEDULE</div><h1>Booking calendar</h1><p>Plan and manage daily reservations.</p></div><button className="btn primary" onClick={()=>openNew(calendarDate)}><Plus size={17}/> New booking</button></div><CalendarPanel bookings={stats.active} date={calendarDate} onDate={setCalendarDate} onCreate={openNew} onEdit={openEdit}/></>}
         {view==='reports'&&<Insights stats={stats} bookings={bookings} onExport={exportCsv}/>}
         <footer className="footer"><span>© {new Date().getFullYear()} Greenlight Booking</span><span>Administrator dashboard</span></footer>
