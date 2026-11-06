@@ -8,6 +8,7 @@ import { departments } from '../lib/departments.js';
 import { useScrollReveal } from '../hooks/useScrollReveal.js';
 import { useBookingAvailability } from '../hooks/useBookingAvailability.js';
 import AvailabilityMessage from '../components/AvailabilityMessage.jsx';
+import PublicDailySchedule from '../components/PublicDailySchedule.jsx';
 
 const empty = () => ({
   booked_for: today(), start_time: '09:00', end_time: '10:00',
@@ -21,6 +22,7 @@ export default function PublicBookingPage() {
     useBookingAvailability(form.booked_for, form.resource);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);
+  const [scheduleRefresh, setScheduleRefresh] = useState(0);
 
   const conflict = slots.some(s => form.start_time < s.end_time && form.end_time > s.start_time);
 
@@ -41,6 +43,7 @@ export default function PublicBookingPage() {
       setNotice({type:'success', text:result.message || 'Booking request submitted successfully.'});
       setForm(current => ({...empty(), booked_for: current.booked_for, resource: current.resource}));
       retry(); // Refresh occupancy now that a new request has been recorded.
+      setScheduleRefresh(count => count + 1); // Also update today's public schedule.
     } catch (error) {
       setNotice({type:'error', text:error.message + (error.requestId ? ' (Reference: ' + error.requestId.slice(0, 8) + ')' : '')});
     } finally {
@@ -73,6 +76,11 @@ export default function PublicBookingPage() {
               <h3><CalendarDays size={20}/> Reservation details</h3>
               <div className="form-two"><label><span className="form-label-text">Booking date <span aria-hidden="true">*</span></span><input type="date" min={today()} required value={form.booked_for} onChange={e => field('booked_for', e.target.value)}/></label><label><span className="form-label-text">Resource / space <span aria-hidden="true">*</span></span><select required value={form.resource} onChange={e => field('resource',e.target.value)}>{resources.map(r => <option key={r}>{r}</option>)}</select></label></div>
               <div className="form-two"><label><span className="form-label-text">Start time <span aria-hidden="true">*</span></span><input type="time" required value={form.start_time} onChange={e => field('start_time',e.target.value)}/></label><label><span className="form-label-text">End time <span aria-hidden="true">*</span></span><input type="time" required value={form.end_time} onChange={e => field('end_time',e.target.value)}/></label></div>
+              <PublicDailySchedule
+                date={form.booked_for}
+                selectedResource={form.resource}
+                refreshKey={scheduleRefresh}
+              />
               <AvailabilityMessage
                 state={availability}
                 conflict={conflict}
