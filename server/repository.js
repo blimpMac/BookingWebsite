@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { AppError } from './errors.js';
+import { toPublicScheduleEntry } from './publicSchedule.js';
 
 export const TABLE = 'greenlight_booking_reservations';
 let db;
@@ -69,6 +70,27 @@ export async function listBookings() {
   }
   return { bookings: result, capped: true };
 }
+/**
+ * Read-only schedule for the public form. Supabase selects only non-sensitive
+ * fields; the mapper independently enforces the public response shape.
+ * Cancelled entries are historical and do not occupy public booking slots.
+ */
+export async function listPublicSchedule(date) {
+  const { data, error } = await database().from(TABLE)
+    .select('resource,start_time,end_time,status')
+    .eq('booked_for', date)
+    .neq('status', 'cancelled')
+    .order('start_time', { ascending: true })
+    .order('resource', { ascending: true })
+    .limit(201);
+  if (error) throw error;
+  const rows = data || [];
+  return {
+    bookings: rows.slice(0, 200).map(toPublicScheduleEntry),
+    capped: rows.length > 200,
+  };
+}
+
 export async function occupiedTimes(date, resource) {
   const { data, error } = await database().from(TABLE)
     .select('start_time,end_time')
