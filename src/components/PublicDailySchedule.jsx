@@ -8,6 +8,7 @@ import { formatDate, formatTime } from '../lib/booking.js';
  * Only room/resource, time, and status are displayed—no booker details.
  */
 export default function PublicDailySchedule({ date, selectedResource, refreshKey = 0 }) {
+  const [retryCount, setRetryCount] = useState(0);
   const [result, setResult] = useState({
     date: '',
     today: '',
@@ -49,11 +50,7 @@ export default function PublicDailySchedule({ date, selectedResource, refreshKey
     });
 
     return () => controller.abort();
-  }, [date, refreshKey]);
-
-  const [retryCount, setRetryCount] = useState(0);
-  // Included in effect dependencies only through the explicit refreshKey prop
-  // and the local retry below.
+  }, [date, refreshKey, retryCount]);
   const isCurrent = result.date === date;
   const state = isCurrent ? result.state : 'loading';
   const isToday = state === 'ready' && date === result.today;
@@ -80,7 +77,7 @@ export default function PublicDailySchedule({ date, selectedResource, refreshKey
       </p>
       {state === 'loading' && <p className="daily-schedule-feedback" role="status">Loading the schedule…</p>}
       {state === 'error' && <p className="daily-schedule-feedback warning" role="alert">
-        Today's schedule is temporarily unavailable. Please try refreshing.
+        The schedule is temporarily unavailable. Please try refreshing.
       </p>}
       {state === 'ready' && result.bookings.length === 0 &&
         <p className="daily-schedule-feedback empty" role="status">No bookings recorded for this date.</p>}
