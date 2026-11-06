@@ -37,6 +37,14 @@ export function bookingInput(body, { publicSubmission = false } = {}) {
   return booking;
 }
 /** A status-only admin update must never rewrite reservation fields. */
+export function isStatusOnlyPatch(body) {
+  return body !== null && typeof body === 'object' &&
+    !Array.isArray(body) &&
+    Object.keys(body).length === 2 &&
+    Object.prototype.hasOwnProperty.call(body, 'id') &&
+    Object.prototype.hasOwnProperty.call(body, 'status');
+}
+
 export function bookingStatus(value) {
   if (typeof value !== 'string' || !BOOKING_STATUSES.includes(value))
     throw new AppError('INVALID_STATUS', 'Choose a valid booking status.');
