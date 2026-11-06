@@ -2,14 +2,14 @@
 
 ## Production prerequisites
 
-1. Create **a separate Supabase project** for Greenlight Booking. The connected **RFP Web Project must not be modified**.
-2. Run the checked-in SQL migration on the new project (no historical data migration).
+1. Use Supabase project `wwuewhkzrbehhcgzgoww` in the distinct **Greenlight Booking organization**. The connected **RFP Web Project must not be modified**.
+2. The initial booking migration and extension-hardening migration were applied and verified on this project. No historical data was migrated.
 3. Set Vercel project environment variables for **Production**, **Preview** and **Development**:
    - `ADMIN_USERNAME` — Greenlight
    - `ADMIN_PASSWORD_SCRYPT` — salted scrypt hash (never a plaintext password)
    - `SESSION_SECRET` — random signing secret
    - `SUPABASE_URL` — the new project's API URL
-   - `SUPABASE_SERVICE_ROLE_KEY` — the new project's **secret** service-role key
+   - `SUPABASE_SECRET_KEY` — recommended: the new project's modern `sb_secret_...` API key, stored only in Vercel encrypted variables. Never paste into Git or chat. Legacy `SUPABASE_SERVICE_ROLE_KEY` is supported as a fallback.
    - `BOOKING_SUPABASE_PROJECT_REF` — the new project's ref, for example the subdomain in `https://<ref>.supabase.co`. A mismatched URL is rejected before connecting.
 4. Redeploy the production branch so Vercel Functions receive the new variables.
 5. Verify the public page, sign-in, `/api/health`, creating pending bookings, admin confirmation, cancellation, and duplicate time protection.
