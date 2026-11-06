@@ -70,8 +70,8 @@ export default function PublicBookingPage() {
           <div className="request-layout">
             <form className="public-request-form" data-reveal="second" onSubmit={submit}>
               <h3><CalendarDays size={20}/> Reservation details</h3>
-              <div className="form-two"><label>Booking date <span>*</span><input type="date" min={today()} required value={form.booked_for} onChange={e => field('booked_for', e.target.value)}/></label><label>Resource / space <span>*</span><select required value={form.resource} onChange={e => field('resource',e.target.value)}>{resources.map(r => <option key={r}>{r}</option>)}</select></label></div>
-              <div className="form-two"><label>Start time <span>*</span><input type="time" required value={form.start_time} onChange={e => field('start_time',e.target.value)}/></label><label>End time <span>*</span><input type="time" required value={form.end_time} onChange={e => field('end_time',e.target.value)}/></label></div>
+              <div className="form-two"><label><span className="form-label-text">Booking date <span aria-hidden="true">*</span></span><input type="date" min={today()} required value={form.booked_for} onChange={e => field('booked_for', e.target.value)}/></label><label><span className="form-label-text">Resource / space <span aria-hidden="true">*</span></span><select required value={form.resource} onChange={e => field('resource',e.target.value)}>{resources.map(r => <option key={r}>{r}</option>)}</select></label></div>
+              <div className="form-two"><label><span className="form-label-text">Start time <span aria-hidden="true">*</span></span><input type="time" required value={form.start_time} onChange={e => field('start_time',e.target.value)}/></label><label><span className="form-label-text">End time <span aria-hidden="true">*</span></span><input type="time" required value={form.end_time} onChange={e => field('end_time',e.target.value)}/></label></div>
               <AvailabilityMessage
                 state={availability}
                 conflict={conflict}
@@ -79,8 +79,8 @@ export default function PublicBookingPage() {
                 onRetry={retry}
               />
               <h3><Users size={20}/> Booker information</h3>
-              <div className="form-two"><label>Full name <span>*</span><input required maxLength={120} value={form.booked_by} onChange={e=>field('booked_by',e.target.value)} placeholder="Your full name"/></label><label>Department <input maxLength={120} value={form.department} onChange={e=>field('department',e.target.value)} placeholder="Department / team"/></label></div>
-              <label>Purpose of booking<textarea rows={3} maxLength={1000} value={form.purpose} onChange={e=>field('purpose',e.target.value)} placeholder="What will you use this space for?"/></label>
+              <div className="form-two"><label><span className="form-label-text">Full name <span aria-hidden="true">*</span></span><input required maxLength={120} value={form.booked_by} onChange={e=>field('booked_by',e.target.value)} placeholder="Your full name"/></label><label><span className="form-label-text">Department</span><input maxLength={120} value={form.department} onChange={e=>field('department',e.target.value)} placeholder="Department / team"/></label></div>
+              <label><span className="form-label-text">Purpose of booking</span><textarea rows={3} maxLength={1000} value={form.purpose} onChange={e=>field('purpose',e.target.value)} placeholder="What will you use this space for?"/></label>
               <input tabIndex={-1} aria-hidden="true" autoComplete="off" className="honeypot" value={form.website} onChange={e=>field('website',e.target.value)}/>
               {notice&&<div role="status" className={'alert '+notice.type}>{notice.type==='success'?<CheckCircle2 size={19}/>:<AlertTriangle size={19}/>}<span>{notice.text}</span></div>}
               <button className={"btn primary public-submit" + (busy ? " is-loading" : "")} disabled={busy||availability!=='ready'||conflict}>{busy?'Submitting…':'Submit booking request'}<ArrowRight size={17}/></button>
