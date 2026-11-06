@@ -4,6 +4,7 @@ import { CalendarDays, Clock3, ArrowRight, CheckCircle2, AlertTriangle, ShieldCh
 import Brand from '../components/Brand.jsx';
 import { api } from '../lib/api.js';
 import { resources, today } from '../lib/booking.js';
+import { departments } from '../lib/departments.js';
 import { useScrollReveal } from '../hooks/useScrollReveal.js';
 import { useBookingAvailability } from '../hooks/useBookingAvailability.js';
 import AvailabilityMessage from '../components/AvailabilityMessage.jsx';
@@ -79,7 +80,7 @@ export default function PublicBookingPage() {
                 onRetry={retry}
               />
               <h3><Users size={20}/> Booker information</h3>
-              <div className="form-two"><label><span className="form-label-text">Full name <span aria-hidden="true">*</span></span><input required maxLength={120} value={form.booked_by} onChange={e=>field('booked_by',e.target.value)} placeholder="Your full name"/></label><label><span className="form-label-text">Department</span><input maxLength={120} value={form.department} onChange={e=>field('department',e.target.value)} placeholder="Department / team"/></label></div>
+              <div className="form-two"><label><span className="form-label-text">Full name <span aria-hidden="true">*</span></span><input required maxLength={120} value={form.booked_by} onChange={e=>field('booked_by',e.target.value)} placeholder="Your full name"/></label><label><span className="form-label-text">Department</span><select value={form.department} onChange={e=>field('department',e.target.value)}><option value="">Select department</option>{departments.map(department => <option key={department} value={department}>{department}</option>)}</select></label></div>
               <label><span className="form-label-text">Purpose of booking</span><textarea rows={3} maxLength={1000} value={form.purpose} onChange={e=>field('purpose',e.target.value)} placeholder="What will you use this space for?"/></label>
               <input tabIndex={-1} aria-hidden="true" autoComplete="off" className="honeypot" value={form.website} onChange={e=>field('website',e.target.value)}/>
               {notice&&<div role="status" className={'alert '+notice.type}>{notice.type==='success'?<CheckCircle2 size={19}/>:<AlertTriangle size={19}/>}<span>{notice.text}</span></div>}
