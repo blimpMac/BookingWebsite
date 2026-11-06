@@ -15,9 +15,16 @@ create table if not exists public.greenlight_booking_reservations (
   updated_at timestamptz not null default now(),
   constraint greenlight_booking_time_range check (end_time > start_time)
 );
-create unique index if not exists greenlight_unique_active_slot
- on public.greenlight_booking_reservations (booked_for, resource, start_time)
- where status <> 'cancelled';
+-- Prevent all time-range overlaps, including different start times.
+-- PostgreSQL enforces this atomically even for concurrent requests.
+create extension if not exists btree_gist;
+alter table public.greenlight_booking_reservations
+  add constraint greenlight_booking_no_overlap
+  exclude using gist (
+    booked_for with =,
+    resource with =,
+    tsrange(booked_for + start_time, booked_for + end_time, '[)') with &&
+  ) where (status <> 'cancelled');
 create index if not exists greenlight_booking_date_idx on public.greenlight_booking_reservations (booked_for desc);
 alter table public.greenlight_booking_reservations enable row level security;
 -- No anon or authenticated access policies. All access requires
