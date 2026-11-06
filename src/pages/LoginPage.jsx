@@ -47,7 +47,7 @@ export default function LoginPage({ configured, onLogin }) {
             </div>
             {error && <div role="alert" className="alert error"><AlertTriangle size={17}/><span>{error}</span></div>}
             {!configured && <div role="status" className="alert warning"><AlertTriangle size={17}/>Login configuration is not active. Contact your system administrator.</div>}
-            <button className="btn primary login-submit" disabled={busy || !configured}>{busy ? 'Signing in...' : 'Sign in'}<ArrowRight size={18}/></button>
+            <button className={"btn primary login-submit" + (busy ? " is-loading" : "")} disabled={busy || !configured}>{busy ? 'Signing in...' : 'Sign in'}<ArrowRight size={18}/></button>
           </form>
           <div className="login-secure"><ShieldCheck size={15}/> Authorized staff only</div>
         </div>
