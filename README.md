@@ -52,6 +52,7 @@ A **new dedicated Supabase project** must be created for Greenlight Booking. Thi
    - `SESSION_SECRET` (random server signing key)
    - `SUPABASE_URL` (new project's URL)
    - `SUPABASE_SERVICE_ROLE_KEY` (new project's server-only key)
+   - `BOOKING_SUPABASE_PROJECT_REF` (new project reference; prevents accidentally using the RFP database)
 4. Redeploy the site so serverless functions receive the new settings.
 5. Log in and check `GET /api/health`. It should return `database: connected`.
 6. Test public submission, admin confirmation, cancellation, and conflicting reservations.
