@@ -71,13 +71,14 @@ export async function listBookings() {
   return { bookings: result, capped: true };
 }
 /**
- * Read-only schedule for the public form. Supabase selects only non-sensitive
- * fields; the mapper independently enforces the public response shape.
+ * Read-only schedule for the public form. The owner requested that booker
+ * names and departments appear alongside room/time/status. The database query
+ * selects only those six fields; purpose, notes and IDs remain private.
  * Cancelled entries are historical and do not occupy public booking slots.
  */
 export async function listPublicSchedule(date) {
   const { data, error } = await database().from(TABLE)
-    .select('resource,start_time,end_time,status')
+    .select('resource,start_time,end_time,status,booked_by,department')
     .eq('booked_for', date)
     .neq('status', 'cancelled')
     .order('start_time', { ascending: true })
