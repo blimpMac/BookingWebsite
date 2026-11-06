@@ -89,6 +89,7 @@ export default function PublicBookingPage() {
               />
               <h3><Users size={20}/> Booker information</h3>
               <div className="form-two"><label><span className="form-label-text">Full name <span aria-hidden="true">*</span></span><input required maxLength={120} value={form.booked_by} onChange={e=>field('booked_by',e.target.value)} placeholder="Your full name"/></label><label><span className="form-label-text">Department</span><select value={form.department} onChange={e=>field('department',e.target.value)}><option value="">Select department</option>{departments.map(department => <option key={department} value={department}>{department}</option>)}</select></label></div>
+              <p className="booking-sharing-notice">Your full name and department will appear in the public daily booking schedule to help colleagues coordinate reservations. Your booking purpose will not be displayed.</p>
               <label><span className="form-label-text">Purpose of booking</span><textarea rows={3} maxLength={1000} value={form.purpose} onChange={e=>field('purpose',e.target.value)} placeholder="What will you use this space for?"/></label>
               <input tabIndex={-1} aria-hidden="true" autoComplete="off" className="honeypot" value={form.website} onChange={e=>field('website',e.target.value)}/>
               {notice&&<div role="status" className={'alert '+notice.type}>{notice.type==='success'?<CheckCircle2 size={19}/>:<AlertTriangle size={19}/>}<span>{notice.text}</span></div>}
@@ -98,7 +99,7 @@ export default function PublicBookingPage() {
               <div className="step"><span className="step-icon"><CalendarDays size={20}/></span><div><b>01. Select your schedule</b><p>Pick a space, date, and time that suits your needs.</p></div></div>
               <div className="step"><span className="step-icon"><ClipboardList size={20}/></span><div><b>02. Share your details</b><p>Tell us who is booking and what the reservation is for.</p></div></div>
               <div className="step"><span className="step-icon"><CheckCircle2 size={20}/></span><div><b>03. Await confirmation</b><p>The administrator reviews the request and manages the booking.</p></div></div>
-              <div className="aside-note"><Building2 size={19}/><p>Booking records are managed securely by the Greenlight administrator. This public page does not expose other users' personal information.</p></div>
+              <div className="aside-note"><Building2 size={19}/><p>Booking records are managed securely by the Greenlight administrator. Names and departments are visible in the daily schedule to help coordinate shared spaces. Booking purposes and private notes remain hidden.</p></div>
             </aside>
           </div>
         </div></section>
