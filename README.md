@@ -42,16 +42,17 @@ Read [ARCHITECTURE](docs/ARCHITECTURE.md) and [OPERATIONS](docs/OPERATIONS.md) b
 
 **The existing RFP Web Project database is not a booking database and must not be modified.**
 
-A **new dedicated Supabase project** must be created for Greenlight Booking. This requires selecting the owning Supabase organization and any applicable cost approval. No historical Apps Script data will be migrated.
+The **Greenlight Booking** Supabase project is `wwuewhkzrbehhcgzgoww`, in its own organization. The booking table was installed and verified on November 6, 2026. This requires selecting the owning Supabase organization and any applicable cost approval. No historical Apps Script data will be migrated.
 
-1. Create a distinct `Greenlight Booking` Supabase project.
-2. Apply `supabase/migrations/001_greenlight_booking.sql` **only in the new project**.
+1. Use project `wwuewhkzrbehhcgzgoww` (already created) in the separate Greenlight Booking organization.
+2. The initial schema and extension-hardening migrations were applied and verified. Do not reapply to the RFP database.
 3. Set these encrypted Vercel environment variables in project `greenlight-booking`:
    - `ADMIN_USERNAME` (single admin)
    - `ADMIN_PASSWORD_SCRYPT` (salted scrypt digest, not plaintext)
    - `SESSION_SECRET` (random server signing key)
    - `SUPABASE_URL` (new project's URL)
-   - `SUPABASE_SERVICE_ROLE_KEY` (new project's server-only key)
+   - `SUPABASE_SECRET_KEY` (recommended: modern `sb_secret_...` key from this project's settings; **set it directly in Vercel**, never in chat or Git)
+   - `SUPABASE_SERVICE_ROLE_KEY` (optional legacy fallback if a modern secret key is unavailable)
    - `BOOKING_SUPABASE_PROJECT_REF` (new project reference; prevents accidentally using the RFP database)
 4. Redeploy the site so serverless functions receive the new settings.
 5. Log in and check `GET /api/health`. It should return `database: connected`.
